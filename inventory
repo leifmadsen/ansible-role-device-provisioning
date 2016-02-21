@@ -1,0 +1,12 @@
+159.203.32.128 ansible_ssh_user=root
+159.203.20.72 ansible_ssh_user=root
+159.203.32.126 ansible_ssh_user=root
+
+[ticket_server]
+159.203.32.126
+
+[prov_server]
+159.203.32.128
+
+[pbx_server]
+159.203.20.72

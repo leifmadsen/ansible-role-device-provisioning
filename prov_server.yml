@@ -1,0 +1,55 @@
+---
+- hosts: prov_server
+  vars:
+    php_memory_limit: "128M"
+    php_max_execution_time: "90"
+    php_upload_max_filesize: "256M"
+    php_packages:
+      - php
+      - php-cli
+      - php-common
+      - php-devel
+      - php-gd
+      - php-mbstring
+      - php-pdo
+      - php-pecl-apc
+      - php-xml
+
+    apache_listen_port: 80
+    apache_create_vhosts: True
+    apache_vhosts:
+      - servername: "djpdjp.pw"
+        documentroot: "/var/www/vhosts/djpdjp.pw"
+
+    ntp_timezone: America/Toronto
+    newrelic_service_state: started
+    newrelic_license_key: 9224a8818f464f228eb1c32f1e6858e56ddac037
+
+  pre_tasks:
+    - name: Install Common Packages
+      yum: name={{ item }} state=installed
+      with_items:
+        - epel-release
+        - firewalld
+        - firewall-config
+
+    - name: Validate firewalld service is operational
+      service: name=firewalld state=started enabled=yes
+
+  roles:
+    - { role: franklinkim.newrelic }
+    - { role: kuon.firewalld, port: 22, public: true }
+    - { role: kuon.firewalld, port: 80, public: true }
+    - { role: geerlingguy.ntp }
+    - { role: geerlingguy.git }
+    - { role: geerlingguy.php }
+    - { role: geerlingguy.apache }
+
+  post_tasks:
+    - name: Install provisioning repository
+      git:
+        repo: https://github.com/leifmadsen/Provisioner.git
+        accept_hostkey: True
+        dest: /var/www/vhosts/djpdjp.pw
+        version: develop
+
